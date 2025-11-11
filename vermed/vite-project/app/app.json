@@ -1,5 +1,6 @@
 {
   "expo": {
+    "sdkVersion": "54.0.0",
     "name": "VerMed",
     "slug": "vermed",
     "version": "1.0.0",
@@ -24,7 +25,9 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.vermed.app",
-      "permissions": ["CAMERA"]
+      "permissions": [
+        "CAMERA"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -36,7 +39,8 @@
         {
           "cameraPermission": "Allow VerMed to access your camera to scan medicine barcodes and labels"
         }
-      ]
+      ],
+      "expo-font"
     ]
   }
 }

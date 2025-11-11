@@ -1,6 +1,10 @@
 {
   "dependencies": {
+    "-": "^0.0.1",
+    "@expo/cli": "^54.0.16",
+    "@react-native-community/cli": "^20.0.2",
     "@tailwindcss/vite": "^4.1.17",
+    "g": "^2.0.1",
     "tailwindcss": "^4.1.17"
   }
 }
