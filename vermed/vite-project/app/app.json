@@ -40,7 +40,8 @@
           "cameraPermission": "Allow VerMed to access your camera to scan medicine barcodes and labels"
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-barcode-scanner"
     ]
   }
 }
