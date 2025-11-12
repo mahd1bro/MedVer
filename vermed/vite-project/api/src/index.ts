@@ -1,7 +1,7 @@
 import fastify from 'fastify';
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
-import { Logger } from '@/utils/logger';
+import { Logger } from './utils/logger';
 import { healthRoutes } from '@/routes/health';
 import { searchRoutes } from '@/routes/search';
 import { verifyRoutes } from '@/routes/verify';
