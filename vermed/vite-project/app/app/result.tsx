@@ -1,7 +1,13 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform, Dimensions, StatusBar } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 0;
+const HEADER_HEIGHT = 60;
+const BOTTOM_ACTION_HEIGHT = 80;
+const AVAILABLE_CONTENT_HEIGHT = SCREEN_HEIGHT - STATUS_BAR_HEIGHT - HEADER_HEIGHT - BOTTOM_ACTION_HEIGHT;
 
 export default function ResultScreen() {
   const router = useRouter();
@@ -22,6 +28,9 @@ export default function ResultScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Status Bar Spacer */}
+      <View style={[styles.statusBarSpacer, { height: STATUS_BAR_HEIGHT }]} />
+      
       {/* Header */}
       <View style={[styles.header, medicine.isOriginal ? styles.headerGreen : styles.headerRed]}>
         <TouchableOpacity onPress={() => router.back()}>
@@ -31,7 +40,11 @@ export default function ResultScreen() {
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView style={styles.content}>
+      <ScrollView 
+        style={styles.content}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Status Card */}
         <View style={[styles.statusCard, medicine.isOriginal ? styles.statusCardGreen : styles.statusCardRed]}>
           <View style={[styles.statusIcon, medicine.isOriginal ? styles.statusIconGreen : styles.statusIconRed]}>
@@ -127,8 +140,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f9fafb',
   },
+  statusBarSpacer: {
+    backgroundColor: '#16a34a',
+  },
   header: {
-    padding: 16,
+    height: HEADER_HEIGHT,
+    paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -146,14 +163,17 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 24,
+  },
+  contentContainer: {
+    padding: 20,
+    paddingBottom: 30,
   },
   statusCard: {
     borderRadius: 16,
     borderWidth: 2,
     padding: 24,
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   statusCardGreen: {
     backgroundColor: '#f0fdf4',
@@ -164,7 +184,7 @@ const styles = StyleSheet.create({
     borderColor: '#ef4444',
   },
   statusIcon: {
-    padding: 24,
+    padding: 20,
     borderRadius: 64,
     marginBottom: 16,
   },
@@ -197,8 +217,8 @@ const styles = StyleSheet.create({
   detailsCard: {
     backgroundColor: 'white',
     borderRadius: 16,
-    padding: 24,
-    marginBottom: 24,
+    padding: 20,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -238,7 +258,7 @@ const styles = StyleSheet.create({
     borderColor: '#fed7aa',
     borderRadius: 12,
     padding: 16,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   warningContent: {
     flex: 1,
@@ -258,7 +278,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#dbeafe',
     borderRadius: 12,
     padding: 16,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   descriptionTitle: {
     fontSize: 16,
@@ -277,7 +297,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3f4f6',
     borderRadius: 12,
     padding: 16,
-    marginBottom: 24,
+    marginBottom: 10,
   },
   verifiedLabel: {
     fontSize: 14,
@@ -300,6 +320,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#e5e7eb',
     gap: 16,
+    paddingBottom: Platform.OS === 'ios' ? 30 : 16,
   },
   actionButtonGray: {
     flex: 1,

@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  Platform,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from './contexts/TranslationContext';
 
 const languages = {
   en: 'English',
@@ -12,27 +22,31 @@ const languages = {
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { t, locale, setLocale } = useTranslation();
+
+  const handleLanguageChange = (newLocale: string) => {
+    setLocale(newLocale);
+    Alert.alert(t('success'), `Language changed to ${languages[newLocale as keyof typeof languages]}`);
+  };
+
   const [currentLanguage, setCurrentLanguage] = useState<keyof typeof languages>('en');
 
   const handleClearCache = () => {
-    Alert.alert(
-      'Clear Cache',
-      'Are you sure you want to clear all cached translations?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Clear',
-          style: 'destructive',
-          onPress: () => {
-            Alert.alert('Success', 'Cache cleared successfully');
-          },
-        },
-      ]
-    );
+    Alert.alert('Clear Cache', 'Are you sure you want to clear all cached translations?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Clear',
+        style: 'destructive',
+        onPress: () => Alert.alert('Success', 'Cache cleared successfully'),
+      },
+    ]);
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { paddingTop: Platform.OS === 'android' ? 40 : 0 }]}
+      edges={['top', 'bottom']}
+    >
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
@@ -42,12 +56,17 @@ export default function SettingsScreen() {
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView style={styles.content}>
+      {/* Content */}
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={{ paddingVertical: 20 }}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Language Settings */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Ionicons name="globe-outline" size={20} color="#16a34a" />
-            <Text style={styles.cardTitle}>Language</Text>
+            <Text style={styles.cardTitle}>{t('language')}</Text>
           </View>
           <View style={styles.cardContent}>
             {Object.entries(languages).map(([code, name]) => (
@@ -55,19 +74,19 @@ export default function SettingsScreen() {
                 key={code}
                 style={[
                   styles.languageButton,
-                  currentLanguage === code && styles.languageButtonActive,
+                  locale === code && styles.languageButtonActive,
                 ]}
-                onPress={() => setCurrentLanguage(code as keyof typeof languages)}
+                onPress={() => handleLanguageChange(code)}
               >
                 <Text
                   style={[
                     styles.languageText,
-                    currentLanguage === code && styles.languageTextActive,
+                    locale === code && styles.languageTextActive,
                   ]}
                 >
                   {name}
                 </Text>
-                {currentLanguage === code && (
+                {locale === code && (
                   <View style={styles.checkmark}>
                     <Ionicons name="checkmark" size={16} color="white" />
                   </View>
@@ -144,13 +163,13 @@ export default function SettingsScreen() {
           <View style={styles.securityContent}>
             <Text style={styles.securityTitle}>Privacy & Security</Text>
             <Text style={styles.securityText}>
-              Your medicine verification data is processed locally. No personal information 
+              Your medicine verification data is processed locally. No personal information
               is stored or shared.
             </Text>
           </View>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -158,13 +177,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9fafb',
+    paddingHorizontal: 16,
   },
   header: {
     backgroundColor: '#16a34a',
-    padding: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderRadius: 12,
   },
   headerTitle: {
     fontSize: 20,
@@ -173,7 +195,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 24,
   },
   card: {
     backgroundColor: 'white',

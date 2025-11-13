@@ -1,10 +1,10 @@
-
-
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { SearchRequestSchema } from '@/types';
 import { GreenbookService } from '@/services/greenbook';
 import { Logger } from '@/utils/logger';
-import { SearchResult } from '@/types';
+
+interface SearchQuery {
+  q: string;
+}
 
 /**
  * Search routes for medicine lookup
@@ -14,7 +14,18 @@ export async function searchRoutes(fastify: FastifyInstance): Promise<void> {
     schema: {
       description: 'Search for medicines',
       tags: ['search'],
-      querystring: SearchRequestSchema,
+      querystring: {
+        type: 'object',
+        required: ['q'],  // This must be an array!
+        properties: {
+          q: { 
+            type: 'string',
+            minLength: 1,
+            maxLength: 100,
+            description: 'Search query for medicine name or registration number'
+          }
+        }
+      },
       response: {
         200: {
           type: 'array',
@@ -45,20 +56,17 @@ export async function searchRoutes(fastify: FastifyInstance): Promise<void> {
         },
       },
     },
-  }, async (request: FastifyRequest, reply: FastifyReply) => {
+  }, async (request: FastifyRequest<{ Querystring: SearchQuery }>, reply: FastifyReply) => {
     const startTime = Date.now();
-    
     try {
-      const { q } = request.query as { q: string };
-      
+      const { q } = request.query;
       Logger.request(request);
-      Logger.search(q, 0, 0); // Initial log
+      Logger.search(q, 0, 0);
 
       // Validate query
       if (!q || q.trim().length === 0) {
         const responseTime = Date.now() - startTime;
         Logger.response(request, 400, responseTime);
-        
         return reply.status(400).send({
           error: 'Bad Request',
           message: 'Search query is required',
@@ -68,7 +76,6 @@ export async function searchRoutes(fastify: FastifyInstance): Promise<void> {
       if (q.length > 100) {
         const responseTime = Date.now() - startTime;
         Logger.response(request, 400, responseTime);
-        
         return reply.status(400).send({
           error: 'Bad Request',
           message: 'Search query too long (max 100 characters)',
@@ -77,9 +84,9 @@ export async function searchRoutes(fastify: FastifyInstance): Promise<void> {
 
       // Perform search
       const results = await GreenbookService.search(q);
-      
+
       // Transform to SearchResult format
-      const searchResults: SearchResult[] = results.map((product, index) => ({
+      const searchResults = results.map((product, index) => ({
         id: `search_${Date.now()}_${index}`,
         title: product.title,
         regNo: product.regNo,
@@ -104,12 +111,21 @@ export async function searchRoutes(fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  // Search suggestions endpoint (optional enhancement)
+  // Search suggestions endpoint
   fastify.get('/search/suggestions', {
     schema: {
       description: 'Get search suggestions',
       tags: ['search'],
-      querystring: SearchRequestSchema,
+      querystring: {
+        type: 'object',
+        required: ['q'],  // This must be an array!
+        properties: {
+          q: { 
+            type: 'string',
+            description: 'Partial search query'
+          }
+        }
+      },
       response: {
         200: {
           type: 'array',
@@ -123,12 +139,10 @@ export async function searchRoutes(fastify: FastifyInstance): Promise<void> {
         },
       },
     },
-  }, async (request: FastifyRequest, reply: FastifyReply) => {
+  }, async (request: FastifyRequest<{ Querystring: SearchQuery }>, reply: FastifyReply) => {
     const startTime = Date.now();
-    
     try {
-      const { q } = request.query as { q: string };
-      
+      const { q } = request.query;
       Logger.request(request);
 
       if (!q || q.length < 2) {
@@ -143,7 +157,7 @@ export async function searchRoutes(fastify: FastifyInstance): Promise<void> {
         { text: 'Amoxicillin', type: 'medicine' },
         { text: 'Ibuprofen', type: 'medicine' },
         { text: 'Vitamin C', type: 'supplement' },
-      ].filter(suggestion => 
+      ].filter(suggestion =>
         suggestion.text.toLowerCase().includes(q.toLowerCase())
       ).slice(0, 5);
 
