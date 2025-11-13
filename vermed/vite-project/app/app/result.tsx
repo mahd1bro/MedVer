@@ -6,7 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 0;
 const HEADER_HEIGHT = 60;
-const BOTTOM_ACTION_HEIGHT = 80;
+const BOTTOM_ACTION_HEIGHT = 100;
+const BOTTOM_SAFE_AREA = Platform.OS === 'ios' ? 34 : 20;
 const AVAILABLE_CONTENT_HEIGHT = SCREEN_HEIGHT - STATUS_BAR_HEIGHT - HEADER_HEIGHT - BOTTOM_ACTION_HEIGHT;
 
 export default function ResultScreen() {
@@ -316,11 +317,12 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     padding: 16,
+    paddingTop: 20,
+    paddingBottom: BOTTOM_SAFE_AREA,
     backgroundColor: 'white',
     borderTopWidth: 1,
     borderTopColor: '#e5e7eb',
     gap: 16,
-    paddingBottom: Platform.OS === 'ios' ? 30 : 16,
   },
   actionButtonGray: {
     flex: 1,
